@@ -7,29 +7,38 @@
 
 (defun initargs-for-class (class)
   (loop :for slot :in (closer-mop:class-slots (find-class class))
-        :append (closer-mop:slot-definition-initargs slot)))
+        :for initarg = (first (closer-mop:slot-definition-initargs slot))
+        :for initform = (closer-mop:slot-definition-initform slot)
+        :when initarg
+          :collect `((,initarg ,(gensym (symbol-name initarg)))
+                     ,@(when initform (list initform)))))
 
 #+(or) (initargs-for-class 'pdf::document)
+
+(defun key-name (key)
+  (if (listp key)
+      (if (listp (first key))
+          (first (first key))
+          (first key))
+      key))
+
+(defun same-key-p (a b)
+  (string= (key-name a) (key-name b)))
 
 (defmacro declare-object-wrapper (macro-name (&rest classes))
   (let* ((function (macro-function macro-name))
          (fn-arglist (arglist function))
          (arglist (first fn-arglist)))
     (when (and fn-arglist (consp arglist))
-      (let ((initargs (remove-duplicates (reduce #'nconc (mapcar #'initargs-for-class classes)))))
+      (let ((initargs (reduce #'nconc (mapcar #'initargs-for-class classes))))
         (multiple-value-bind (req opt rest key aok aux) (parse-ordinary-lambda-list arglist :normalize nil)
           `(eval-when (:load-toplevel :execute)
              (setf (arglist (macro-function ',macro-name))
                    '((,@req ,@opt ,@(when rest `(&rest ,rest))
                       ,(and (or key initargs) '&key)
-                      ,@(remove-duplicates `(,@key ,@(mapcar (lambda (k) `((,k ,(gensym)))) initargs))
-                                           :test #'string=
-                                           :from-end t
-                                           :key (lambda (key) (if (listp key)
-                                                                  (if (listp (first key))
-                                                                      (first (first key))
-                                                                      (first key))
-                                                                  key)))
+                      ,@(remove-duplicates (append key initargs)
+                                           :test #'same-key-p
+                                           :from-end t)
                       ,@(when aok '(&allow-other-keys))
                       ,@aux)
                      ,@(rest fn-arglist)))))))))
