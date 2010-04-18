@@ -1,2 +1,2 @@
 * default-initargs as default values for initargs
-* keyword arguments from classes' initialize-instance
+* keyword arguments from superclasses' initialize-instance

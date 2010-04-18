@@ -6,7 +6,8 @@
   (:import-from #:closer-mop
                 #:class-slots
                 #:slot-definition-initargs
-                #:slot-definition-initform))
+                #:slot-definition-initform
+                #:method-lambda-list))
 (in-package #:arglist-wrappers)
 
 (defun initargs-for-class (class)
@@ -16,6 +17,13 @@
         :when initarg
           :collect `((,initarg ,(gensym (symbol-name initarg)))
                      ,@(when initform (list initform)))))
+
+(defun initialize-instance-keywords (class)
+  (let* ((method (ignore-errors (find-method #'initialize-instance '(:after) (list (find-class class)))))
+         (arglist (and method (method-lambda-list method))))
+    (multiple-value-bind (req opt rest key aok aux)
+        (parse-ordinary-lambda-list arglist :normalize nil)
+      key)))
 
 #+(or) (initargs-for-class 'pdf::document)
 
@@ -34,13 +42,14 @@
          (fn-arglist (arglist function))
          (arglist (first fn-arglist)))
     (when (and fn-arglist (consp arglist))
-      (let ((initargs (reduce #'nconc (mapcar #'initargs-for-class classes))))
+      (let ((initargs (reduce #'nconc (mapcar #'initargs-for-class classes)))
+            (keyargs (reduce #'nconc (mapcar #'initialize-instance-keywords classes))))
         (multiple-value-bind (req opt rest key aok aux) (parse-ordinary-lambda-list arglist :normalize nil)
           `(eval-when (:load-toplevel :execute)
              (setf (arglist (macro-function ',macro-name))
                    '((,@req ,@opt ,@(when rest `(&rest ,rest))
                       ,(and (or key initargs) '&key)
-                      ,@(remove-duplicates (append key initargs)
+                      ,@(remove-duplicates (append key keyargs initargs)
                                            :test #'same-key-p
                                            :from-end t)
                       ,@(when aok '(&allow-other-keys))
