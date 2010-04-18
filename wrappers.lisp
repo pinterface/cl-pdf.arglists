@@ -2,13 +2,17 @@
   (:use #:cl #:arglist-access)
   (:export #:declare-object-wrapper)
   (:import-from #:alexandria
-                #:parse-ordinary-lambda-list))
+                #:parse-ordinary-lambda-list)
+  (:import-from #:closer-mop
+                #:class-slots
+                #:slot-definition-initargs
+                #:slot-definition-initform))
 (in-package #:arglist-wrappers)
 
 (defun initargs-for-class (class)
-  (loop :for slot :in (closer-mop:class-slots (find-class class))
-        :for initarg = (first (closer-mop:slot-definition-initargs slot))
-        :for initform = (closer-mop:slot-definition-initform slot)
+  (loop :for slot :in (class-slots (find-class class))
+        :for initarg = (first (slot-definition-initargs slot))
+        :for initform = (slot-definition-initform slot)
         :when initarg
           :collect `((,initarg ,(gensym (symbol-name initarg)))
                      ,@(when initform (list initform)))))
