@@ -1,0 +1,3 @@
+* initforms as default values for initargs
+* initargs for subclasses
+* default-initargs as default values for initargs
