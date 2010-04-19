@@ -15,7 +15,7 @@
         :for initarg = (first (slot-definition-initargs slot))
         :for initform = (slot-definition-initform slot)
         :when initarg
-          :collect `((,initarg ,(gensym (symbol-name initarg)))
+          :collect `((,initarg ,(copy-symbol initarg))
                      ,@(when initform (list initform)))))
 
 (defun initialize-instance-keywords (class)
