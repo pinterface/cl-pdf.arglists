@@ -26,5 +26,5 @@ I assume you already know how to ensure ASDF can find it.
 ** Usage
 Load via ASDF.  Enjoy the more useful arglists.
 ** Limitations
-cl-pdf.arglists currently only provides nicer arglists for SBCL.  Patches for
-other implementations are welcome.  (see #p"arglists.lisp")
+cl-pdf.arglists currently only provides nicer arglists for SBCL and clisp.
+Patches for other implementations are welcome.  (see #p"arglists.lisp")
