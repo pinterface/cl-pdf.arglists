@@ -1,5 +1,7 @@
 * cl-pdf.arglists
+
 ** What is it
+
 cl-pdf.arglists is a simple little library to improve the arglist display of
 cl-pdf and cl-typesetting macros in, for example, slime.  It adds display of
 keywords from methods on #'initialize-instance, as well as object initargs, to
@@ -9,22 +11,32 @@ No more wondering what keyword arguments are appropriate in each macro or
 perusing the source in an attempt to find out.
 
 Now if only cl-pdf and cl-typesetting had actual documentation. :)
+
 ** Requirements
+
 cl-pdf.arglists requires a small set of additional libraries:
  * alexandria
  * closer-mop
  * cl-pdf
  * cl-typesetting
-** Downloading
-Fetching via darcs is relatively easy.
-  darcs get http://repo.kepibu.org/cl-pdf.arglists/
 
-Or, you can use the tarball.
-  http://web.kepibu.org/code/lisp/cl-pdf.arglists/cl-pdf.arglists.tar.gz
+** Downloading
+
+Cloning via git is relatively easy.
+
+#+begin_src sh
+  git clone https://github.com/pinterface/cl-pdf.arglists.git
+#+end_src
+
 ** Installation
+
 I assume you already know how to ensure ASDF can find it.
+
 ** Usage
+
 Load via ASDF.  Enjoy the more useful arglists.
+
 ** Limitations
+
 cl-pdf.arglists currently only provides nicer arglists for SBCL and clisp.
 Patches for other implementations are welcome.  (see #p"arglists.lisp")
